@@ -152,7 +152,9 @@ class ClientFragment:Fragment() {
         binding= FragmentClientBinding.inflate(inflater,container,false)
 
 
+        var time=0L
 
+        var count=0;
 
 
         ClientHeart.receive=object :ClientHeart.Receive{
@@ -168,6 +170,13 @@ class ClientFragment:Fragment() {
                         ClientHeart.dataScope.launch {
                             val fg= BitmapFactory.decodeStream(ByteArrayInputStream(response.content))
                             MainScope().launch {
+                                count++
+                                if(count>=100){
+                                    val x=(System.currentTimeMillis()-time).toFloat()/1000f
+                                    binding.fps.text=(100f/x).toInt().toString()+" fps"
+                                    time=System.currentTimeMillis()
+                                    count=0
+                                }
                                 binding.img.setImageBitmap(fg)
                             }
 
@@ -180,9 +189,7 @@ class ClientFragment:Fragment() {
             }
 
         }
-        var time=0L
 
-        var count=0;
 
 /*        ClientHeart.dataScope.launch {
             try {
