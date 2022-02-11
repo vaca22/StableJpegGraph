@@ -64,7 +64,7 @@ class ServerFragment : Fragment() {
         val jpegSize = jpegArray.size
         var jpegSeq = 0;
     }
-
+  var nnSocket: MySocket?=null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -97,11 +97,11 @@ class ServerFragment : Fragment() {
                 when (response.cmd) {
                     TcpCmd.CMD_READ_FILE_START -> {
                         ServerHeart.dataScope.launch {
-                            val list=imgArray.get(imgArray.size-2)
+                           /* val list=imgArray.get(imgArray.size-2)
                             if (list==null) {
                                 return@launch
-                            }
-                            try {
+                            }*/
+                           /* try {
                                 serverSend[id] = JpegSend(list)
                                 serverSend[id]!!.jpegSeq = response.pkgNo
                                 ServerHeart.send(
@@ -113,26 +113,20 @@ class ServerFragment : Fragment() {
                                 )
                             } catch (e: Exception) {
 
-                            }
+                            }*/
 
                         }
 
 
                     }
                     TcpCmd.CMD_READ_FILE_DATA -> {
-                        ServerHeart.send(
-                            TcpCmd.ReplyFileData(
-                                serverSend[id]!!.jpegArray,
-                                response.pkgNo,
-                                id
-                            ),
-                            mySocket
-                        )
+                        nnSocket=mySocket
+                    /*
                         GlobalScope.launch {
                             while (imgArray.size>5){
                                 imgArray.removeAt(0)
                             }
-                        }
+                        }*/
 
 
 
@@ -147,7 +141,7 @@ class ServerFragment : Fragment() {
     }
 
 
-    val imgArray = LinkedList<ByteArray>()
+    //val imgArray = LinkedList<ByteArray>()
 
 
     private fun startBackgroundThread() {
@@ -276,8 +270,17 @@ class ServerFragment : Fragment() {
                         image.width, image.height
                     );
 
-
-                    imgArray.add(data.clone())
+                    nnSocket?.let {
+                        ServerHeart.send(
+                            TcpCmd.ReplyFileData(
+                                data,
+                                0,
+                                0
+                            ),
+                            it
+                        )
+                    }
+                   // imgArray.add(data.clone())
 
                 } catch (e: Exception) {
 

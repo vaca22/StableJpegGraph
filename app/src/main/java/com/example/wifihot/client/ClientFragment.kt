@@ -159,15 +159,21 @@ class ClientFragment:Fragment() {
             override fun onResponseReceived(response: Response, mySocket: MySocket) {
                 when (response.cmd) {
                     TcpCmd.CMD_READ_FILE_START->{
-                        val fileSize=toUInt(response.content)
+                       /* val fileSize=toUInt(response.content)
                         imageJpeg= ImageJpeg(fileSize)
                          clientId=response.id
-                        ClientHeart.send(TcpCmd.readFileData(0,clientId))
+                        ClientHeart.send(TcpCmd.readFileData(0,clientId))*/
                     }
                     TcpCmd.CMD_READ_FILE_DATA->{
                         ClientHeart.dataScope.launch {
-                                imageJpeg.add(response.content)
-                                fileDataChannel.send(byteArrayOf(0))
+                            val fg= BitmapFactory.decodeStream(ByteArrayInputStream(response.content))
+                            MainScope().launch {
+                                binding.img.setImageBitmap(fg)
+                            }
+
+
+                             /*   imageJpeg.add(response.content)
+                                fileDataChannel.send(byteArrayOf(0))*/
                         }
                     }
                 }
@@ -178,16 +184,16 @@ class ClientFragment:Fragment() {
 
         var count=0;
 
-        ClientHeart.dataScope.launch {
+/*        ClientHeart.dataScope.launch {
             try {
                 delay(1000)
                 time=System.currentTimeMillis()
                 while(true){
-                    val pic=GetPic()
-                    if(pic==null){
+                  //  val pic=GetPic()
+                  *//*  if(pic==null){
                         continue
                     }
-                    val fx=pic.clone()
+                    val fx=pic.clone()*//*
                     withContext(Dispatchers.Main){
                         count++
                         if(count>=10){
@@ -204,14 +210,21 @@ class ClientFragment:Fragment() {
 
             }
 
-        }
+        }*/
 
+        ClientHeart.dataScope.launch {
+            while(true){
+                ClientHeart.send(TcpCmd.readFileData(0,clientId))
+                delay(500)
+            }
+
+        }
 
         return binding.root
     }
 
 
-    val lock= Mutex()
+   /* val lock= Mutex()
     private suspend  fun GetPic():ByteArray?{
         try {
             var end=false
@@ -246,7 +259,7 @@ class ClientFragment:Fragment() {
             return null
         }
 
-    }
+    }*/
 
 
 
